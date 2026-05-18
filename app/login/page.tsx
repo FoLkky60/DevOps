@@ -8,9 +8,18 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
 
+interface LoginResponse {
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+  };
+  error?: string;
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const { user, isLoading, login } = useAuth();
+  const { user, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,16 +35,34 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
+    try {
+      // Log request payload for debugging
+      console.log("[auth] login request", { email });
 
-    const result = await login(email, password);
+      // เรียก fetch ตรง ๆ ไปที่ backend
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // ส่ง cookie ไปกับคำขอ
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (result.success) {
+      const data: LoginResponse = await response.json();
+      console.log("[auth] login response", { status: response.status, data });
+
+      if (!response.ok) {
+        setError(data.error ?? "Login failed");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Login สำเร็จ ไปที่ /lab
       router.push("/lab");
-    } else {
-      setError(result.error ?? "Login failed");
+    } catch (err) {
+      console.error('[auth] login error', err);
+      setError(err instanceof Error ? err.message : "Login failed");
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   if (isLoading) {
@@ -93,7 +120,11 @@ export default function LoginPage() {
 
             {error && <div className="rounded-full border border-rose-300/30 bg-rose-400/10 p-3 text-sm text-rose-100">{error}</div>}
 
-            <Button className="w-full" disabled={isSubmitting}>
+            <Button 
+              type="submit"
+              className="w-full cursor-pointer" 
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Logging in..." : "Log in"}
             </Button>
           </form>

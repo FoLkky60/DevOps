@@ -15,7 +15,9 @@ export function useAuth() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const response = await fetch("/api/auth/me");
+        const response = await fetch("/api/auth/me", {
+          credentials: "include",
+        });
         const data = (await response.json()) as { user: User | null };
         setUser(data.user);
       } catch {
@@ -33,6 +35,7 @@ export function useAuth() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -57,6 +60,7 @@ export function useAuth() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password, name }),
       });
 
@@ -78,7 +82,10 @@ export function useAuth() {
 
   const logout = useCallback(async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
       setUser(null);
       return { success: true };
     } catch {

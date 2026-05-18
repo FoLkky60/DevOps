@@ -8,9 +8,18 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
 
+interface RegisterResponse {
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+  };
+  error?: string;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
-  const { user, isLoading, register } = useAuth();
+  const { user, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -28,6 +37,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
+    // ตรวจสอบ validation
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -40,15 +50,34 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
 
-    const result = await register(email, password, name);
+    try {
+      // Log request payload for debugging
+      console.log('[auth] register request', { email, name });
 
-    if (result.success) {
+      // เรียก fetch ตรง ๆ ไปที่ backend
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // ส่ง cookie ไปกับคำขอ
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      const data: RegisterResponse = await response.json();
+      console.log('[auth] register response', { status: response.status, data });
+
+      if (!response.ok) {
+        setError(data.error ?? "Registration failed");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Register สำเร็จ ไปที่ /lab
       router.push("/lab");
-    } else {
-      setError(result.error ?? "Registration failed");
+    } catch (err) {
+      console.error('[auth] register error', err);
+      setError(err instanceof Error ? err.message : "Registration failed");
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   if (isLoading) {
@@ -136,7 +165,11 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <Button className="w-full" disabled={isSubmitting}>
+            <Button 
+              type="submit"
+              className="w-full cursor-pointer" 
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Creating account..." : "Create account"}
             </Button>
           </form>

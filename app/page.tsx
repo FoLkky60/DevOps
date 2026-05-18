@@ -10,12 +10,6 @@ export default function Home() {
   const router = useRouter();
   const { user, isLoading, logout } = useAuth();
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, isLoading, router]);
-
   if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
@@ -24,9 +18,6 @@ export default function Home() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
 
   const handleLogout = async () => {
     await logout();
@@ -46,13 +37,32 @@ export default function Home() {
 
       <section className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-center px-6 py-16 sm:px-10 lg:px-12">
         <div className="absolute right-6 top-6 flex items-center gap-3 sm:right-10">
-          <span className="text-sm text-slate-400">Welcome, {user.name}</span>
-          <button
-            onClick={handleLogout}
-            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:border-rose-300/30 hover:bg-rose-400/10"
-          >
-            Logout
-          </button>
+          {user ? (
+            <>
+              <span className="text-sm text-slate-400">Welcome, {user.name}</span>
+              <button
+                onClick={handleLogout}
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:border-rose-300/30 hover:bg-rose-400/10"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:border-cyan-300/30 hover:bg-white/10"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-full border border-transparent bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
 
         <div className="grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">

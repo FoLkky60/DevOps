@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Button } from "@/components/ui/Button";
 
 interface ChaosButtonProps {
   burstKey: number;
@@ -21,19 +20,7 @@ export function ChaosButton({ burstKey, onClick, disabled }: ChaosButtonProps) {
   });
 
   return (
-    <div className="relative inline-flex">
-      <Button
-        onClick={onClick}
-        disabled={disabled}
-        className="relative overflow-hidden px-6 py-3 text-sm font-semibold tracking-wide"
-      >
-        <span className="relative z-10">Detonate Chaos</span>
-        <motion.span
-          className="absolute inset-0 bg-white/10"
-          animate={{ opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-        />
-      </Button>
+    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
 
       <AnimatePresence>
         {burstKey > 0 ? (

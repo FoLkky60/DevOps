@@ -3,6 +3,8 @@ import { connectToDatabase } from "@/lib/db";
 import { generateChaosCode, normalizeConfig } from "@/lib/utils";
 import { RecipeModel } from "@/models/Recipe";
 import type { Recipe, RecipeInput } from "@/types/recipe";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,10 +27,28 @@ function serializeRecipe(recipe: {
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   await connectToDatabase();
 
-  const recipes = await RecipeModel.find().sort({ createdAt: -1 }).lean();
+  const url = new URL(request.url);
+  const mine = url.searchParams.get("mine");
+
+  let filter: Record<string, unknown> = {};
+
+  if (mine === "true") {
+    // try to read token from cookies
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token")?.value;
+    const payload = token ? verifyToken(token) : null;
+    if (payload) {
+      filter = { createdBy: payload.userId };
+    } else {
+      // not authenticated, return empty
+      return NextResponse.json({ recipes: [] });
+    }
+  }
+
+  const recipes = await RecipeModel.find(filter).sort({ createdAt: -1 }).lean();
 
   return NextResponse.json({
     recipes: recipes.map((recipe) =>
@@ -66,10 +86,17 @@ export async function POST(request: Request) {
         : generateChaosCode(config);
 
     await connectToDatabase();
+
+    // Attach current user if available
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token")?.value;
+    const payload = token ? verifyToken(token) : null;
+
     const createdRecipe = await RecipeModel.create({
       name,
       config,
       generatedCode,
+      createdBy: payload ? payload.userId : undefined,
     });
 
     return NextResponse.json(

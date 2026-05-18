@@ -11,6 +11,11 @@ const RecipeSchema = new Schema(
       type: Schema.Types.Mixed,
       required: true,
     },
+      createdBy: {
+        type: String,
+        required: false,
+        index: true,
+      },
     generatedCode: {
       type: String,
       required: true,

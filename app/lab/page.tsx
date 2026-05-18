@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ChemicalTube } from "@/components/lab/ChemicalTube";
 import { ChaosButton } from "@/components/lab/ChaosButton";
+import { motion } from "framer-motion";
 import { MixingPanel } from "@/components/lab/MixingPanel";
 import { PreviewPanel } from "@/components/lab/PreviewPanel";
 import { useChaosMixer } from "@/hooks/useChaosMixer";
@@ -89,6 +90,7 @@ export default function LabPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           name: recipeName,
           config,
@@ -115,32 +117,18 @@ export default function LabPage() {
   return (
     <main className="min-h-screen px-3 py-4 sm:px-6 lg:px-8">
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-4 sm:gap-6">
-        <header className="flex flex-col gap-4 rounded-[30px] border border-white/10 bg-white/5 p-4 backdrop-blur-2xl sm:p-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">
-              Chaos Lab
-            </p>
-            <h1 className="mt-2 text-2xl font-semibold text-white sm:text-4xl">
-              Mix the interface, then save the reaction.
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-              Tweak the five lab tubes on the left, inspect the live output on the
-              right, and save any successful configuration as a recipe.
-            </p>
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-            <Button
-              variant="secondary"
-              onClick={() => router.push("/recipes")}
-              className="w-full sm:w-auto"
-            >
-              Browse recipes
-            </Button>
-            <div className="w-full sm:w-auto">
-              <ChaosButton burstKey={burstKey} onClick={randomizeChaos} />
+        <nav className="flex items-center justify-between rounded-[10px] border-b border-white/6 bg-transparent py-3 px-4">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Chaos Lab</p>
+              <h1 className="mt-1 text-lg font-semibold text-white">Mix the interface</h1>
             </div>
           </div>
-        </header>
+
+          <div className="flex items-center gap-3">
+            <Button variant="secondary" onClick={() => router.push("/recipes")}>Browse recipes</Button>
+          </div>
+        </nav>
 
         <div className="grid gap-4 lg:gap-6 xl:grid-cols-[0.92fr_1.08fr_1fr]">
           <Card className="space-y-4 p-4 sm:p-5">
@@ -148,29 +136,57 @@ export default function LabPage() {
               <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
                 Chemical tubes
               </p>
-              <h2 className="mt-2 text-lg font-semibold text-white sm:text-xl">
-                Property controls
-              </h2>
+              <div className="flex gap-2">
+                <h2 className="mt-2 text-lg font-semibold text-white sm:text-xl">
+                  Property controls
+                </h2>
+                <div className="">
+                  <Button
+                    onClick={randomizeChaos}
+                    disabled={isSaving}
+                    className="relative overflow-hidden px-6 py-3 text-sm font-semibold tracking-wide"
+                  >
+                    <span className="relative z-10">Roll</span>
+                    <motion.span
+                      className="absolute inset-0 bg-white/10"
+                      animate={{ opacity: [0.1, 0.2, 0.1] }}
+                      transition={{ duration: 2.5, repeat: Infinity }}
+                    />
+                    <ChaosButton
+                      burstKey={1}
+                      onClick={() => {
+                        console.log("clicked");
+                      }}
+                    />
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            <ChemicalTube
-              title="Color"
-              description="Pick the dominant glow tone of the current experiment."
-              accent="from-cyan-400 via-sky-400 to-violet-500"
-            >
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                {COLOR_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setColor(option.value)}
-                    className={optionButtonClasses(config.color === option.value)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+            <div className="flex items-center justify-between">
+              <div>
+                <ChemicalTube
+                  title="Color"
+                  description="Pick the dominant glow tone of the current experiment."
+                  accent="from-cyan-400 via-sky-400 to-violet-500"
+                >
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                    {COLOR_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setColor(option.value)}
+                        className={optionButtonClasses(config.color === option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </ChemicalTube>
               </div>
-            </ChemicalTube>
+
+              <div className="ml-4 mt-4 sm:mt-0" />
+            </div>
 
             <ChemicalTube
               title="Border Radius"

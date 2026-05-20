@@ -124,6 +124,7 @@ export default function Home() {
             />
             <div className="relative space-y-6">
               <div className="flex items-center justify-between text-sm text-slate-400">
+                
                 <span>Chaos Lab / Interface Generator</span>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-cyan-100">
                   v1.0

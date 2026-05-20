@@ -120,6 +120,26 @@ export default function LabPage() {
         <nav className="flex items-center justify-between rounded-[10px] border-b border-white/6 bg-transparent py-3 px-4">
           <div className="flex items-center gap-4">
             <div>
+              <div className="flex items-center p-3 m-2 hover:bg-white/5 rounded-md transition cursor-pointer" onClick={() => router.push("/")}>
+                <button
+                  type="button"
+                  aria-label="Back to home"
+                  className="inline-flex items-center justify-center rounded-md p-1 text-slate-300 hover:text-white"
+    
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div>Back</div>
+              </div>
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Chaos Lab</p>
               <h1 className="mt-1 text-lg font-semibold text-white">Mix the interface</h1>
             </div>
